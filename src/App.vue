@@ -28,16 +28,14 @@
 	import hammer2 from '@/assets/hammer2.png'
 	import hammer3 from '@/assets/hammer1.png'
 
-	// import { Toast, Icon } from 'mint-ui';
-
 	export default {
 		name: 'app',
 		data() {
 			return {
-				money: 1000,
-				number: 3,
-				animate: null,
-				active: null,
+				money: 1000, //豆子数
+				number: 3, //每次砸几下
+				animate: null, //是否执行砸蛋动画
+				active: null, //是否选择锤子
 				hammers: [{
 					name: "钻石锤",
 					price: 250,
@@ -56,7 +54,7 @@
 		},
 		computed: {
 			prizeList() {
-				return this.$store.state.prizeList.slice(-3);
+				return this.$store.state.prizeList.slice(-3); //获取最新的三条获奖记录
 			}
 		},
 		methods: {
@@ -64,13 +62,12 @@
 				this.active = i;
 			},
 			begin() {
-				if (this.active !== null && this.animate === null) { //动画执行完毕后还原初始化
-					if(this.money>=this.hammers[this.active].price*this.number){
-						this.animate = true;
+				if (this.active !== null && this.animate === null) { //判断是否选择锤子，动画是否执行完毕
+					if(this.money>=this.hammers[this.active].price*this.number){ //钱数是否够
+						this.animate = true; 
 						this.money -= this.hammers[this.active].price*this.number;
 
-						//中奖随机数
-						let random = Math.floor(Math.random() * 4);
+						let random = Math.floor(Math.random() * 4); //中奖随机数
 
 						this.$messagebox.alert('恭喜您砸出一台' + this.prize[random] + '！').then(action => {
 							this.$store.commit('addPirze', {
