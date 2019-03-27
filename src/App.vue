@@ -85,7 +85,7 @@
 						let random = Math.floor(Math.random() * 4); //中奖随机数
 						
 						setTimeout(()=>{ //动画执行完弹框
-							this.$messagebox.alert('恭喜您砸出一台' + this.prize[random] + '！').then(action => {
+							this.$messagebox.alert('恭喜您砸出一台' + this.prize[random] + '！').then(() => {
 								eggAudio.load(); //重新加载音效
 								this.$store.commit('addPirze', { //想vuex添加中奖信息
 									user: '135****8465',
@@ -195,7 +195,7 @@
 
 	.game_egg_hammer {
 		width: 30%;
-		max-width: 50px;
+		max-width: 80px;
 		position: absolute;
 		right: 22%;
 		top: 24%;
