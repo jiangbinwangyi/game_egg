@@ -1,19 +1,24 @@
 <template>
 	<div id="app">
+		<!-- 标题 -->
 		<div class="game_title"><img src="@/assets/title.png" alt=""></div>
+		<!-- 金蛋 -->
 		<div class="game_main" :class="{active: animate!==null}">
 			<div class="game_egg_hammer"><img :src="active!==null?hammers[active].pic:''" alt=""></div>
 			<div class="game_egg" @click="begin"></div>
+			<!-- 选择次数 -->
 			<select name="egg_number" id="egg_number" class="game_egg_number" v-model="changed">
 				<option v-for="val in number" :key="val" :value="val">砸{{val}}次</option>
 			</select>
 		</div>
+		<!-- 选择锤子 -->
 		<div class="game_hammers">
 			<div v-for="(item, index) in hammers" :class="['game_hammer',{active: active==index}]" :key="index" @click="hammer(index)">
 				<img :src="item.pic" alt="">
 				<p>{{item.name}}/{{item.price}}豆</p>
 			</div>
 		</div>
+		<!-- 豆子，中奖列表 -->
 		<div class="prizeList">
 			<div class="moneyBox" v-text="money+'豆'"></div>
 			<ul>
@@ -22,10 +27,14 @@
 				</li>
 			</ul>
 		</div>
+		<!-- 音效 -->
+		<audio :src="eggAudio" id="eggAudio"></audio>
 	</div>
 </template>
 
 <script>
+	import eggAudio from '@/assets/egg.wav'
+	
 	import hammer1 from '@/assets/hammer3.png'
 	import hammer2 from '@/assets/hammer2.png'
 	import hammer3 from '@/assets/hammer1.png'
@@ -34,12 +43,13 @@
 		name: 'app',
 		data() {
 			return {
+				eggAudio,
 				changed: 1, //每次砸几下
 				animate: null, //是否执行砸蛋动画
 				active: null, //是否选择锤子
 				money: 1000, //豆子数
 				number: [1,3,5,10], //砸几下列表
-				hammers: [{
+				hammers: [{ //锤子列表
 					name: "钻石锤",
 					price: 250,
 					pic: hammer1
@@ -52,7 +62,7 @@
 					price: 10,
 					pic: hammer3
 				}],
-				prize: ['IMac', 'IPad', 'IPhone', 'IPod']
+				prize: ['IMac', 'IPad', 'IPhone', 'IPod'] //奖品列表
 			}
 		},
 		computed: {
@@ -62,24 +72,27 @@
 		},
 		methods: {
 			hammer(i) {
-				this.active = this.active==i?null:i;
+				this.active = this.active==i?null:i;  //点击同样的锤子还原
 			},
 			begin() {
 				if (this.active !== null && this.animate === null) { //判断是否选择锤子，动画是否执行完毕
 					if(this.money>=this.hammers[this.active].price*this.changed){ //钱数是否够
-						this.animate = true; 
-						this.money -= this.hammers[this.active].price*this.changed;
+						let eggAudio = document.querySelector('#eggAudio');
+						eggAudio.play(); //播放音效
+						this.animate = true; //执行动画
+						this.money -= this.hammers[this.active].price*this.changed; //更新钱数
 
 						let random = Math.floor(Math.random() * 4); //中奖随机数
 						
 						setTimeout(()=>{ //动画执行完弹框
 							this.$messagebox.alert('恭喜您砸出一台' + this.prize[random] + '！').then(action => {
-								this.$store.commit('addPirze', {
+								eggAudio.load(); //重新加载音效
+								this.$store.commit('addPirze', { //想vuex添加中奖信息
 									user: '135****8465',
 									prize: this.prize[random]
 								})
-
-								this.animate = null;
+								
+								this.animate = null; //还原动画
 							})
 						},600)
 					}else{
