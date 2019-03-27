@@ -4,7 +4,9 @@
 		<div class="game_main" :class="{active: animate!==null}">
 			<div class="game_egg_hammer"><img :src="active!==null?hammers[active].pic:''" alt=""></div>
 			<div class="game_egg" @click="begin"></div>
-			<div class="game_egg_number" v-text="'砸'+number+'次'"></div>
+			<select name="egg_number" id="egg_number" class="game_egg_number" v-model="changed">
+				<option v-for="val in number" :key="val" :value="val">砸{{val}}次</option>
+			</select>
 		</div>
 		<div class="game_hammers">
 			<div v-for="(item, index) in hammers" :class="['game_hammer',{active: active==index}]" :key="index" @click="hammer(index)">
@@ -32,10 +34,11 @@
 		name: 'app',
 		data() {
 			return {
-				money: 1000, //豆子数
-				number: 3, //每次砸几下
+				changed: 1, //每次砸几下
 				animate: null, //是否执行砸蛋动画
 				active: null, //是否选择锤子
+				money: 1000, //豆子数
+				number: [1,3,5,10], //砸几下列表
 				hammers: [{
 					name: "钻石锤",
 					price: 250,
@@ -59,25 +62,26 @@
 		},
 		methods: {
 			hammer(i) {
-				this.active = i;
+				this.active = this.active==i?null:i;
 			},
 			begin() {
 				if (this.active !== null && this.animate === null) { //判断是否选择锤子，动画是否执行完毕
-					if(this.money>=this.hammers[this.active].price*this.number){ //钱数是否够
+					if(this.money>=this.hammers[this.active].price*this.changed){ //钱数是否够
 						this.animate = true; 
-						this.money -= this.hammers[this.active].price*this.number;
+						this.money -= this.hammers[this.active].price*this.changed;
 
 						let random = Math.floor(Math.random() * 4); //中奖随机数
+						
+						setTimeout(()=>{ //动画执行完弹框
+							this.$messagebox.alert('恭喜您砸出一台' + this.prize[random] + '！').then(action => {
+								this.$store.commit('addPirze', {
+									user: '135****8465',
+									prize: this.prize[random]
+								})
 
-						this.$messagebox.alert('恭喜您砸出一台' + this.prize[random] + '！').then(action => {
-							this.$store.commit('addPirze', {
-								user: '135****8465',
-								prize: this.prize[random]
+								this.animate = null;
 							})
-
-							this.active = null;
-							this.animate = null;
-						})
+						},600)
 					}else{
 						this.$toast({
 							message: '您的豆子不够了！',
@@ -188,14 +192,19 @@
 
 	.game_egg_number {
 		position: absolute;
-		right: -26%;
+		right: -30%;
 		bottom: 10%;
 		font-size: 12px;
-		width: 20%;
 		background: url(assets/regulation.png) no-repeat;
 		background-size: 100% 100%;
-		padding: 4px 5%;
+		line-height: 1;
+		padding: 4px 2%;
+		outline: none;
 		color: #cccc99;
+		border: none;
+	}
+	.game_egg_number option{
+		background: #993333;
 	}
 
 	@keyframes hammer {
